@@ -1,0 +1,48 @@
+server:
+  port: 8080
+
+#actuator config
+management:
+  health:
+    circuit-breakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
+
+#circuit breaker config
+resilience4j:
+  circuitbreaker:
+    instances:
+      payment_service:
+        registerHealthIndicator: true
+        eventConsumerBufferSize: 10
+        failureRateThreshold: 50
+        minimumNumberOfCalls: 5
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        wait-duration-in-open-state:
+          seconds: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 10
+        slidingWindowType: COUNT_BASED
+
+#retry config
+  retry:
+    instances:
+      payment_service2:
+        max-attempts: 5
+        wait-duration:
+          seconds: 3
+
+#rate limiting config
+  ratelimiter:
+    instances:
+      payment_service:
+        limit-for-period: 5
+        limit-refresh-period: 15s
+        timeout-duration: 10s
+        register-health-indicator: true
